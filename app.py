@@ -437,35 +437,75 @@ with tab2:
                 st.warning("No seatable guest or open table is available.")
 
 with tab3:
-    st.markdown('<div class="section-title">Order Capture</div>', unsafe_allow_html=True)
-    seated_options = [f"{r.id}: {r.guest_name}" for r in guests[guests["status"] == "Seated"].itertuples()]
-    if not seated_options:
-        st.info("Seat a guest before taking an order.")
+    st.markdown('<div class="section-title">Admin Order Manager</div>', unsafe_allow_html=True)
+    st.caption("Admins can add, edit, save, delete, and export orders. Orders are linked to seated guests when possible.")
+
+    active_guest_df = guests[guests["status"].isin(["Seated", "Waiting", "Quoted", "Booked"])] if not guests.empty else guests
+    guest_options = [f"{r.id}: {r.guest_name} ({r.status})" for r in active_guest_df.itertuples()]
+    order_options = ["New order"] + [f"{r.id}: {r.item} x{r.quantity}" for r in orders.itertuples()]
+
+    if not guest_options:
+        st.info("Register or seat a guest before creating orders.")
     else:
-        with st.form("order_form"):
-            guest_choice = st.selectbox("Seated guest", seated_options)
+        selected_order_label = st.selectbox("Select order to manage", order_options)
+        selected_order = None if selected_order_label == "New order" else orders[orders.id == int(selected_order_label.split(":")[0])].iloc[0]
+
+        if selected_order is not None and int(selected_order.guest_id) in set(active_guest_df["id"].astype(int).tolist()):
+            default_guest_index = active_guest_df["id"].astype(int).tolist().index(int(selected_order.guest_id))
+        else:
+            default_guest_index = 0
+
+        category_options = ["Starter", "Entree", "Dessert", "Drink", "Special", "Modifier", "Service Charge"]
+        status_options = ["Sent", "Preparing", "Ready", "Served", "Voided", "Comped"]
+        default_category = "Entree" if selected_order is None else selected_order.category
+        default_status = "Sent" if selected_order is None else selected_order.status
+        if default_category not in category_options:
+            category_options.insert(0, default_category)
+        if default_status not in status_options:
+            status_options.insert(0, default_status)
+
+        with st.form("admin_order_form"):
+            guest_choice = st.selectbox("Guest / check", guest_options, index=default_guest_index)
             guest_id = int(guest_choice.split(":")[0])
             guest = guests[guests.id == guest_id].iloc[0]
             table_id = int(guest.assigned_table_id) if pd.notna(guest.assigned_table_id) else None
-            item = st.text_input("Menu item")
-            category = st.selectbox("Category", ["Starter", "Entree", "Dessert", "Drink", "Special"])
-            quantity = st.number_input("Quantity", min_value=1, value=1)
-            price = st.number_input("Unit price", min_value=0.0, value=18.0, step=0.5)
-            order_status = st.selectbox("Order status", ["Sent", "Preparing", "Ready", "Served", "Voided"])
-            order_notes = st.text_area("Order notes")
-            if st.form_submit_button("Add order", type="primary") and item:
-                save_order(None, guest_id, table_id, item, category, quantity, price, order_status, order_notes)
-                st.rerun()
+
+            c1, c2 = st.columns(2)
+            with c1:
+                item = st.text_input("Menu item", "" if selected_order is None else selected_order.item)
+                category = st.selectbox("Category", category_options, index=category_options.index(default_category))
+                quantity = st.number_input("Quantity", min_value=1, value=1 if selected_order is None else int(selected_order.quantity))
+            with c2:
+                price = st.number_input("Unit price", min_value=0.0, value=18.0 if selected_order is None else float(selected_order.price), step=0.5)
+                order_status = st.selectbox("Order status", status_options, index=status_options.index(default_status))
+                order_notes = st.text_area("Order notes", "" if selected_order is None else selected_order.notes)
+
+            save_clicked = st.form_submit_button("Save order", type="primary")
+
+        if save_clicked and item:
+            save_order(None if selected_order is None else int(selected_order.id), guest_id, table_id, item, category, quantity, price, order_status, order_notes)
+            st.rerun()
+
+        if selected_order is not None:
+            delete_col, meta_col = st.columns([0.28, 0.72])
+            with delete_col:
+                if st.button("Delete selected order", type="secondary"):
+                    delete_order(int(selected_order.id))
+                    st.rerun()
+            with meta_col:
+                st.markdown(
+                    f"<div class='card'><b>Selected order #{int(selected_order.id)}</b><div class='muted'>Last saved {selected_order.updated_at}</div></div>",
+                    unsafe_allow_html=True,
+                )
 
     if orders.empty:
         st.info("No orders captured yet.")
     else:
-        display = orders.merge(guests[["id", "guest_name"]], left_on="guest_id", right_on="id", how="left", suffixes=("", "_guest"))
-        st.dataframe(display[["id", "guest_name", "item", "category", "quantity", "price", "line_total", "status", "notes", "updated_at"]], use_container_width=True, hide_index=True)
-        order_to_delete = st.selectbox("Delete order", ["None"] + [f"{r.id}: {r.item}" for r in orders.itertuples()])
-        if order_to_delete != "None" and st.button("Delete selected order"):
-            delete_order(int(order_to_delete.split(":")[0]))
-            st.rerun()
+        display = orders.merge(guests[["id", "guest_name", "status"]], left_on="guest_id", right_on="id", how="left", suffixes=("", "_guest"))
+        display = display.merge(tables[["id", "table_name", "area"]], left_on="table_id", right_on="id", how="left", suffixes=("", "_table"))
+        show_cols = ["id", "guest_name", "table_name", "area", "item", "category", "quantity", "price", "line_total", "status", "notes", "updated_at"]
+        st.dataframe(display[show_cols], use_container_width=True, hide_index=True)
+        st.download_button("Export orders CSV", display[show_cols].to_csv(index=False), "tableturn_orders.csv", "text/csv")
 
 with tab4:
     st.markdown('<div class="section-title">Guest Registry</div>', unsafe_allow_html=True)

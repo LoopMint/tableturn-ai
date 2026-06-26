@@ -15,7 +15,8 @@ TableTurn AI is a SaaS-ready Streamlit MVP for restaurant table management, gues
 - Waitlist queue with AI-style table matching and seat-priority scoring
 - Seat assignment workflow that fills open tables and marks them occupied
 - Table clearing workflow that closes guests and resets tables
-- Order capture by seated guest, table, item, category, quantity, and status
+- Admin order manager to add, edit, save, delete, and export orders
+- Order records linked to guests and assigned tables, with item, category, quantity, price, status, and notes
 - Guest registry with edit/delete/export support
 - Floor analytics for table state, area load, guest mix, and sales by category
 - AI-style operating brief for seating and service decisions
