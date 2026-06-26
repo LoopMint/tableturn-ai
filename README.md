@@ -1,6 +1,6 @@
 # TableTurn AI
 
-TableTurn AI is a SaaS-ready Streamlit MVP for restaurant seating, waitlist pressure, reservation pacing, and table-turn decisions. It is designed for independent restaurant operators who need a professional host-stand command center during live service.
+TableTurn AI is a SaaS-ready Streamlit MVP for restaurant table management, guest registration, waitlist seating, and order capture. It is designed for independent restaurant operators who need a practical front-of-house operating system to fill seats, manage parties, and track orders during live service.
 
 ## Target Users
 
@@ -10,17 +10,19 @@ TableTurn AI is a SaaS-ready Streamlit MVP for restaurant seating, waitlist pres
 
 ## Key Features
 
-- Reservation and waitlist CRUD
-- Shift control panel for service date, service period, capacity, and turn targets
-- Occupancy, covers, waitlist, projected sales, and turn-risk KPIs
-- Priority queue with next-best host and manager actions
-- Table-area load analytics and revenue-weighted service priority
-- CSV export for shift review
-- AI-style manager brief without paid API dependencies
+- Table inventory management by area, seat count, and status
+- Fast guest registration for walk-ins, reservations, call-aheads, and VIPs
+- Waitlist queue with AI-style table matching and seat-priority scoring
+- Seat assignment workflow that fills open tables and marks them occupied
+- Table clearing workflow that closes guests and resets tables
+- Order capture by seated guest, table, item, category, quantity, and status
+- Guest registry with edit/delete/export support
+- Floor analytics for table state, area load, guest mix, and sales by category
+- AI-style operating brief for seating and service decisions
 
 ## AI Value Proposition
 
-TableTurn AI includes deterministic AI-style recommendations that work without paid API keys. The manager brief prioritizes parties by turn pressure, wait time, party size, and expected spend, then produces practical floor actions. For production, connect OpenAI, Azure OpenAI, Anthropic, or another model provider through Streamlit secrets.
+TableTurn AI includes deterministic AI-style recommendations that work without paid API keys. The waitlist board scores parties by priority, party size, quote time, and registration type, then recommends the best-fit table. The operating brief summarizes current service pressure and suggests practical host and manager actions. For production, connect OpenAI, Azure OpenAI, Anthropic, or another model provider through Streamlit secrets.
 
 ## Setup
 
@@ -45,7 +47,7 @@ streamlit run app.py
 
 ## Persistence Notes
 
-The MVP uses SQLite (`saas_mvp.db`) as a local fallback. This works for demos and single-instance Streamlit Cloud apps, but production multi-user SaaS deployments should move persistence to Supabase, Firebase, Postgres, or another managed database.
+The MVP uses SQLite (`tableturn_ai.db`) as a local fallback. This works for demos and single-instance Streamlit Cloud apps, but production multi-user SaaS deployments should move persistence to Supabase, Firebase, Postgres, or another managed database.
 
 ## SaaS-Ready MVP Note
 
