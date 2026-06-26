@@ -1,6 +1,6 @@
 # TableTurn AI
 
-TableTurn AI is a SaaS-ready Streamlit MVP for restaurant seating and reservation optimization. It is designed for Independent restaurant operators who need a practical workflow for managing records, reviewing risk, exporting data, and producing AI-style recommendations.
+TableTurn AI is a SaaS-ready Streamlit MVP for restaurant seating, waitlist pressure, reservation pacing, and table-turn decisions. It is designed for independent restaurant operators who need a professional host-stand command center during live service.
 
 ## Target Users
 
@@ -10,15 +10,17 @@ TableTurn AI is a SaaS-ready Streamlit MVP for restaurant seating and reservatio
 
 ## Key Features
 
-- Reservation CRUD
-- turn-time scoring
-- service dashboard
-- CSV export
-- AI-style host recommendations
+- Reservation and waitlist CRUD
+- Shift control panel for service date, service period, capacity, and turn targets
+- Occupancy, covers, waitlist, projected sales, and turn-risk KPIs
+- Priority queue with next-best host and manager actions
+- Table-area load analytics and revenue-weighted service priority
+- CSV export for shift review
+- AI-style manager brief without paid API dependencies
 
 ## AI Value Proposition
 
-TableTurn AI includes deterministic AI-style recommendations that work without paid API keys. The recommendation panel prioritizes records by risk and value, then produces practical next actions. For production, connect OpenAI, Azure OpenAI, Anthropic, or another model provider through Streamlit secrets.
+TableTurn AI includes deterministic AI-style recommendations that work without paid API keys. The manager brief prioritizes parties by turn pressure, wait time, party size, and expected spend, then produces practical floor actions. For production, connect OpenAI, Azure OpenAI, Anthropic, or another model provider through Streamlit secrets.
 
 ## Setup
 
